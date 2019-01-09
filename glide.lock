@@ -1,0 +1,22 @@
+hash: 5ccc7624f2e044fce202f75138f24bbd3a70bed81ff02c2e6a2cb36013b13648
+updated: 2019-01-09T04:01:24.253441888-02:00
+imports:
+- name: github.com/coreos/go-iptables
+  version: 47f22b0dd3355c0ba570ba12b0b8a36bf214c04b
+  subpackages:
+  - iptables
+- name: github.com/google/gopacket
+  version: bf568f6eadb6968267219a891af2813771b6b9a1
+  subpackages:
+  - afpacket
+  - layers
+  - pcap
+- name: golang.org/x/net
+  version: 1e06a53dbb7e2ed46e91183f219db23c6943c532
+  subpackages:
+  - bpf
+- name: golang.org/x/sys
+  version: 7fbe1cd0fcc20051e1fcb87fbabec4a1bacaaeba
+  subpackages:
+  - unix
+testImports: []
