@@ -1,11 +1,5 @@
-// Copyright 2018 Google, Inc. All rights reserved.
 //
-// Use of this source code is governed by a BSD-style license
-// that can be found in the LICENSE file in the root of the source
-// tree.
 
-// afpacket provides a simple example of using afpacket with zero-copy to read
-// packet data.
 package main
 
 import (
@@ -23,8 +17,6 @@ import (
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"golang.org/x/net/bpf"
-
-	_ "github.com/google/gopacket/layers"
 )
 
 var (
@@ -131,6 +123,7 @@ func afpacketComputeSize(targetSizeMb int, snaplen int, pageSize int) (
 	return frameSize, blockSize, numBlocks, nil
 }
 
+// HINT: cap_net_raw,cap_net_admin=eip
 func main() {
 	flag.Parse()
 	log.Printf("Starting on interface %q", *iface)
@@ -163,8 +156,13 @@ func main() {
 		packets++
 		if *count%*verbose == 0 {
 			packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.NoCopy)
+			ipLayer := packet.Layer(layers.LayerTypeIPv4)
+			ip := ipLayer.(*layers.IPv4)
 			if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 				tcp, _ := tcpLayer.(*layers.TCP)
+				if tcp.SYN && !tcp.ACK {
+					log.Printf("New connection from %s:%d to %s:%d", ip.SrcIP, tcp.SrcPort, ip.DstIP, tcp.DstPort)
+				}
 				if app := packet.ApplicationLayer(); app != nil && tcp.DstPort == 631 {
 					payload := string(app.Payload())
 					lines := strings.Split(payload, "\n")
@@ -184,6 +182,7 @@ func main() {
 								host := strings.TrimSpace(hostNotTrimmed)
 								log.Printf("Host: %s\n", host)
 							}
+							log.Printf("From src ip %d to dst ip %d (nextLayer: %s)\n", ip.SrcIP, ip.DstIP, ip.NextLayerType())
 							log.Printf("From src port %d to dst port %d\n", tcp.SrcPort, tcp.DstPort)
 							log.Printf("Read in %d bytes in %d packets", bytes, packets)
 						}
